@@ -1,0 +1,269 @@
+CHANGES
+=======
+
+2.0.2
+-----
+
+* test: faster execution for cube and solid color tests
+* fix(trace): skip adding DAF if max is 0
+* test: check extremely sparse images (one or two voxels with no dust threshold)
+* chore: drop py35 testing add .dockerignore
+
+2.0.1
+-----
+
+* fix(windows): use np.uintp before casting to size\_t
+* fix: appveyor needs numpy installed first
+* chore: new build system for binary distribution
+
+2.0.0
+-----
+
+* fix(intake): solid color blocks were causing errors (#56)
+* perf: faster somas (#55)
+* fix: python3.8 compiles cpp code (#52)
+* chore: update travis to use python 3.7 and 3.8
+* add python3.8 test
+
+1.6.0
+-----
+
+* feat: avocado protection (🥑) (#43)
+* chore: update ChangeLog
+
+1.5.0
+-----
+
+* chore: add skeleton for manual testing
+* feat: add fill\_holes argument (#50)
+
+1.4.2
+-----
+
+* chore: loosen networkx requirement (#49)
+* Update README.md
+* docs: update memory usage diagram for version 1.4.0
+
+1.4.1
+-----
+
+* perf: switch source and target for dijkstra
+
+1.3.3
+-----
+
+* refactor: make type of 0L clear to std::max on Windows
+* Revert "fix: don't assume vertices are uint32"
+* fix: don't assume vertices are uint32
+* chore: update ChangeLog
+
+1.3.2
+-----
+
+* fix: several additional algorithms required 64-bit addressable changes
+
+1.3.1
+-----
+
+* chore: bump dijkstra requirement
+* fix: 64-bit addressable \_roll\_invalidation\_cube (#42)
+* docs: shout out to fill\_voids
+* fix: remove unnecessary PIL import
+
+1.3.0
+-----
+
+* docs: describe max\_paths in the function docstring
+* fix: soma center was being overriden by fix\_borders
+* perf: only recompute EDT for soma if some voxels were filled
+* perf: use bidirectional dijkstra on somata (increases peak memory usage)
+
+1.2.1
+-----
+
+* docs: remove non-ascii character from README.md
+* docs: link back to papers using Kimimaro
+
+1.2.0
+-----
+
+* docs: show how to use synapses\_to\_targets
+* feat: facility for converting synapse centroids into targets (#37)
+* refactor+perf: use new fill-voids package
+
+1.1.0
+-----
+
+* perf: implemented flood fill based binary\_fill\_holes (#38)
+
+1.0.4
+-----
+
+* perf: increase postprocess speed (#35)
+* perf: more judicious use of consolidate in postprocess
+
+1.0.3
+-----
+
+* docs: update ChangeLog
+* fix: preserve skeleton id during postprocessing
+
+1.0.2
+-----
+
+* fix: allow multiple invocations of a pathos process pool
+* perf: skip processing if dust\_threshold larger than image
+
+1.0.1
+-----
+
+* fix: accept any root converable to a tuple
+* fix: progress bars were disrupted in parallel feature
+* docs: upload changelog
+
+1.0.0
+-----
+
+* feat: specify extra\_targets\_before and after (#33)
+* docs: fix spelling & grammar
+
+0.7.0
+-----
+
+* docs: add parallel\_chunk\_size to README
+* perf+feat: Reduce Parallel Task Starvation + Better Parallel Progress Bar (#32)
+* docs: add example of join\_close\_components
+
+0.6.0
+-----
+
+* feat: adds join\_close\_components to postprocess (#27)
+* docs: link to tutorial wiki articles
+* docs: add advice on tweaking parameters
+
+0.5.4
+-----
+
+* fix: sometimes get\_mapping doesn't get everything
+
+0.5.3
+-----
+
+* fix: object\_ids were being masked instead of mask\_excepted
+* docs: show performance chart for v0.5.2
+
+0.5.2
+-----
+
+* perf: improve performance of find\_objects 7x
+
+0.5.1
+-----
+
+* perf: ~20x faster unique(label, return\_counts=True) (#26)
+* docs: changelog update + small formatting adjustment to example
+
+0.5.0
+-----
+
+* docs: example of how to use postprocess
+* feat: import out-of-core postprocessing logic from Igneous
+* docs: add object\_ids to example
+* perf: improve speed of skeletontricks.get\_mapping
+* fix: accept binary images of type bool
+* perf: take advantage of faster segid finding if dust\_threshold == 0
+* fix: compilation warning for \_roll\_invalidation\_cube
+* test: add some manual visualization tests
+* chore: update ChangeLog
+
+0.4.2
+-----
+
+* release: 0.4.2
+* chore: tell PyPI we're using markdown
+* fix: ensure we pick max dbf close to centroid of detected somata
+* chore: update ChangeLog
+* docs: various corrections to the README
+
+0.4.1
+-----
+
+* fix: add defense against setting the dust threshold lower than 1
+* chore: formatting around all\_labels
+* test: x and y joinability
+* test: show that two 1px overlapping volumes join properly
+* Update README.md
+* feat: accept N-dimensional arrays with trivial dimensions above 3
+* docs: add Google TEASAR run to boslster case for popularity
+* fix: prevent duplicate border targets
+* feat: parallel edt implementation
+* fix: add support for anisotropy to distance calculations
+* test: add distortion to border test
+* wip: propogate anisotropy to fix\_borders calls
+* fix: cuboid soma processing
+* fix: bump edt to 1.2.4 to correct part of large anisotropy issue
+* perf: faster masking operations with newer fastremap
+* docs: encouraged the use of parallel processing in README.md
+* chore: add GPLv3 classifer to setup.cfg
+* chore: add ChangeLog
+
+0.4.0
+-----
+
+* feat: parallel implementation (Cursed Seal Mode) (#10)
+
+0.3.1
+-----
+
+* fix: INTEGER type did not include all integers
+
+0.3.0
+-----
+
+* docs: updated credits with fix\_borders
+* feat: add fix\_borders parameter & max\_paths parameter (#9)
+* test+fix: remove "cd python"
+* docs: add Travis CI badge
+* chore: add Travis CI
+* test: add basic test for skeletonizing diagonal of square and cube
+* perf: improve memory consumption of object masking
+* perf: introduce in\_place flag to make it safe to modify input data
+* perf: use fastremap's new in\_place flag for lower memory and perf
+* docs: updated credits
+
+0.2.2
+-----
+
+* fix: accept C order arrays (#7)
+* docs: reduce redundancy in example vs performance
+* docs: add benchmark description
+* docs: added benchmark photo
+* docs: add link to citation 4
+* docs: use citations 3 and 4
+* docs: described "roll invalidation cube"
+* docs: described algorithm in steps
+* docs: describing the algorithm
+
+0.2.1
+-----
+
+* fix: black volumes should return dict not None
+
+0.2.0
+-----
+
+* docs: add PyPI badge
+* feat: fix branching (#1)
+* docs: adding sections to README
+
+0.1.0
+-----
+
+* chore: clean up dockerfile and metadata
+* docs: draft discussion of motivation and usage
+* feat: export DimensionError exception (so it can be caught)
+* refactor: remove path\_downsample from trace function
+* docs: described parameters of skeletonize function
+* chore: files required for building distributions
+* wip: importing skeletonization procedure
+* Initial commit

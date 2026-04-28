@@ -26,6 +26,10 @@ RUNNING_PID
 metals.sbt
 __pycache__/
 
+# Skeletonization service outputs — generated at runtime, not source
+/skeletonization_output/
+/tools/skeletonization-service/service.log
+
 
 # Webknossos
 backup/
@@ -122,3 +126,20 @@ tools/**/.yarn/*
 public/index.html
 
 tsconfig.tsbuildinfo
+
+# MagNeurific custom extensions
+magneurific/node_modules/
+server/persistent/
+server/binaryData/
+
+# Data and environment
+venv/
+ac3Data/
+ac3Data_zarr/
+ac3Data_zarr_v2/
+ac3neuron/
+ac3synapse/
+ac3synapse_zarr/
+ac3synapse_zarr_v2/
+*.png
+*.log

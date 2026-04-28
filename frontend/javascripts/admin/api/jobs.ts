@@ -169,6 +169,52 @@ export function startComputeMeshFileJob(
   });
 }
 
+export function startSkeletonizeSegmentationJob(
+  datasetId: string,
+  layerName: string,
+  mag: Vector3,
+  segmentIds: Array<number>,
+  boundingBox?: string,
+): Promise<APIJob> {
+  const params = new URLSearchParams();
+  params.append("layerName", layerName);
+  params.append("mag", mag.join("-"));
+  params.append("segmentIds", segmentIds.join(","));
+  if (boundingBox) {
+    params.append("boundingBox", boundingBox);
+  }
+
+  return Request.receiveJSON(`/api/jobs/run/skeletonizeSegmentation/${datasetId}?${params}`, {
+    method: "POST",
+  });
+}
+
+export function startIngestDatasetJob(
+  datasetId: string,
+  sourcePath: string,
+): Promise<APIJob> {
+  const params = new URLSearchParams();
+  params.append("sourcePath", sourcePath);
+
+  return Request.receiveJSON(`/api/jobs/run/ingestDataset/${datasetId}?${params}`, {
+    method: "POST",
+  });
+}
+
+export function startBatchSkeletonizeJob(
+  datasetId: string,
+  layerName: string,
+  mag: Vector3,
+): Promise<APIJob> {
+  const params = new URLSearchParams();
+  params.append("layerName", layerName);
+  params.append("mag", mag.join("-"));
+
+  return Request.receiveJSON(`/api/jobs/run/batchSkeletonize/${datasetId}?${params}`, {
+    method: "POST",
+  });
+}
+
 export function startComputeSegmentIndexFileJob(
   datasetId: string,
   layerName: string,

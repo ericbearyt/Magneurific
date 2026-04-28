@@ -158,6 +158,8 @@ export function getJobTypeName(command: APIJobCommand): string {
     [APIJobCommand.TRAIN_INSTANCE_MODEL]: "Train Instance Model",
     [APIJobCommand.DEPRECATED_TRAIN_MODEL]: "Train Model (Legacy)",
     [APIJobCommand.DEPRECATED_INFER_WITH_MODEL]: "AI Inference (Legacy)",
+    ingest_large_dataset: "Ingest Large Dataset",
+    batch_skeletonize: "Batch Skeletonize",
   };
   return jobTypeNames[command] || command;
 }
@@ -344,6 +346,20 @@ function JobListView() {
         <span>
           {`Train ${modelName} on ${numberOfTrainingAnnotations} ${pluralize("annotation", numberOfTrainingAnnotations)}. `}
           {getShowTrainingDataLink(modal, job.args.trainingAnnotations)}
+        </span>
+      );
+    } else if (job.command === "ingest_large_dataset") {
+      return (
+        <span>
+          Ingest large dataset from <i>{job.args.sourcePath}</i> into{" "}
+          <b>{job.args.datasetName}</b>
+        </span>
+      );
+    } else if (job.command === "batch_skeletonize") {
+      return (
+        <span>
+          Batch skeletonize layer <i>{layerName}</i> for dataset{" "}
+          <Link to={linkToDataset}>{job.args.datasetName}</Link>
         </span>
       );
     } else {

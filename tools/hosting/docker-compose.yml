@@ -121,3 +121,21 @@ services:
       - ./persistent/nginx/certs:/etc/nginx/certs
       - ./persistent/nginx/vhost.d:/etc/nginx/vhost.d
       - ./persistent/nginx/html:/usr/share/nginx/html
+
+  # Skeletonization service — runs kimimaro on segmentation layers for skeletonize_segmentation jobs.
+  skeletonization-service:
+    image: python:3.12-slim
+    volumes:
+      - ./binaryData:/webknossos/binaryData
+      - ../skeletonization-service:/app:ro
+    working_dir: /app
+    command: >
+      sh -c "pip install --no-cache-dir uv &&
+             uv run main.py --wk-uri http://webknossos:9000 --polling-interval-seconds 10"
+    environment:
+      - WORKER_KEY=${SKELETONIZATION_WORKER_KEY:-secretWorkerKey}
+      - BINARY_DATA_DIR=/webknossos/binaryData
+      - KIMIMARO_PARALLEL=${KIMIMARO_PARALLEL:-1}
+    depends_on:
+      - webknossos
+    restart: unless-stopped

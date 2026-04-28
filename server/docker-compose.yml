@@ -1,0 +1,123 @@
+services:
+  webknossos:
+    image: scalableminds/webknossos:${DOCKER_TAG:-25.12.0}
+    ports:
+      - "127.0.0.1:9000:9000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      fossildb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command:
+      - -Dconfig.file=conf/application.conf
+      - -Djava.net.preferIPv4Stack=true
+      - -Dtracingstore.fossildb.address=fossildb
+      - -Dtracingstore.redis.address=redis
+      - -Ddatastore.redis.address=redis
+      - -Dslick.db.url=jdbc:postgresql://postgres/webknossos
+      - -DwebKnossos.sampleOrganization.enabled=false
+      - -Dtracingstore.publicUri=https://${PUBLIC_HOST}
+      - -Ddatastore.publicUri=https://${PUBLIC_HOST}
+    volumes:
+      - ./binaryData:/webknossos/binaryData
+    environment:
+      - POSTGRES_URL=jdbc:postgresql://postgres/webknossos
+      - VIRTUAL_HOST=${PUBLIC_HOST}
+      - LETSENCRYPT_HOST=${PUBLIC_HOST}
+    user: ${USER_UID:-1000}:${USER_GID:-1000}
+
+  # Postgres
+  postgres:
+    image: postgres:15-bullseye
+    environment:
+      POSTGRES_DB: webknossos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h 127.0.0.1 -p 5432"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - "./persistent/postgres:/var/lib/postgresql/data/"
+
+  psql:
+    extends: postgres
+    command: psql -h postgres -U postgres webknossos
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: postgres
+
+  apply-evolutions:
+    image: scalableminds/webknossos:${DOCKER_TAG:-25.11.0}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint:
+      - node
+    command:
+      - tools/postgres/dbtool.js
+      - apply-evolutions
+    environment:
+      - POSTGRES_URL=jdbc:postgresql://postgres/webknossos
+      - PGPASSWORD=postgres
+    user: ${USER_UID:-1000}:${USER_GID:-1000}
+
+  # FossilDB
+  fossildb:
+    image: scalableminds/fossildb:master__529
+    command:
+      - fossildb
+      - -c
+      - skeletons,skeletonTreeBodies,volumes,volumeData,volumeSegmentIndex,editableMappingsInfo,editableMappingsAgglomerateToGraph,editableMappingsSegmentToAgglomerate,annotations,annotationUpdates
+    user: 0:0
+    volumes:
+      - "./persistent/fossildb/data:/fossildb/data"
+      - "./persistent/fossildb/backup:/fossildb/backup"
+
+  # Redis
+  redis:
+    image: redis:7
+    command:
+      - redis-server
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -c
+        - "exec 3<> /dev/tcp/127.0.0.1/6379 && echo PING >&3 && head -1 <&3 | grep PONG"
+      timeout: 1s
+      interval: 5s
+      retries: 10
+
+  # Nginx
+  nginx:
+    image: scalableminds/nginx-proxy:master__4605879364
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./persistent/nginx/certs:/etc/nginx/certs
+      - ./persistent/nginx/vhost.d:/etc/nginx/vhost.d
+      - ./persistent/nginx/html:/usr/share/nginx/html
+    labels:
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+
+  nginx-letsencrypt:
+    image: nginxproxy/acme-companion
+    environment:
+      - DEFAULT_EMAIL=${LETSENCRYPT_EMAIL}
+    depends_on:
+      - nginx
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./persistent/nginx/certs:/etc/nginx/certs
+      - ./persistent/nginx/vhost.d:/etc/nginx/vhost.d
+      - ./persistent/nginx/html:/usr/share/nginx/html

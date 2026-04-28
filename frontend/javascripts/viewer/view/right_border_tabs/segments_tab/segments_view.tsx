@@ -1,4 +1,5 @@
 import Icon, {
+  ApartmentOutlined,
   ArrowRightOutlined,
   BarChartOutlined,
   CloseOutlined,
@@ -37,6 +38,7 @@ import {
 import type { ItemType } from "antd/lib/menu/interface";
 import type { DataNode } from "antd/lib/tree";
 import app from "app";
+import { startSkeletonizeSegmentationJob } from "admin/rest_api";
 import { ChangeColorMenuItemContent } from "components/color_picker";
 import FastTooltip from "components/fast_tooltip";
 import Toast from "libs/toast";
@@ -111,6 +113,7 @@ import {
   calculateExpandedParentGroups,
   constructTreeData,
   formatMagWithLabel,
+  getBaseSegmentationName,
   getExpandedKeysWithRoot,
   getSegmentsOfGroupRecursively as getSegmentsOfGroupRecursivelyHelper,
   type SegmentHierarchyNode,
@@ -963,6 +966,55 @@ class SegmentsView extends React.Component<Props, State> {
       : null;
   };
 
+  handleSkeletonizeSelectedSegments = async (groupId: number | null) => {
+    const { visibleSegmentationLayer, dataset, magInfoOfVisibleSegmentationLayer } = this.props;
+    if (visibleSegmentationLayer == null) return;
+    const relevantSegments =
+      groupId != null ? this.getSegmentsOfGroupRecursively(groupId) : this.getSelectedSegments();
+    if (relevantSegments == null || relevantSegments.length === 0) {
+      Toast.warning("Select at least one segment to skeletonize.");
+      return;
+    }
+    const segmentIds = relevantSegments.map((s) => s.id);
+    const mag = magInfoOfVisibleSegmentationLayer.getFinestMag();
+    try {
+      await startSkeletonizeSegmentationJob(
+        dataset.id,
+        getBaseSegmentationName(visibleSegmentationLayer),
+        mag,
+        segmentIds,
+      );
+      Toast.info(
+        <>
+          Skeletonization job started for {segmentIds.length} segment(s). See{" "}
+          <a target="_blank" href="/jobs" rel="noopener noreferrer">
+            Processing Jobs
+          </a>{" "}
+          for progress.
+        </>,
+      );
+    } catch (e) {
+      Toast.error(`Could not start skeletonization: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  };
+
+  getSkeletonizeSegmentsMenuItem = (groupId: number | null): ItemType => {
+    return {
+      key: "skeletonizeSegments",
+      icon: <ApartmentOutlined />,
+      label: (
+        <div
+          onClick={() => {
+            this.handleSkeletonizeSelectedSegments(groupId);
+            this.hideContextMenu();
+          }}
+        >
+          Skeletonize Segments
+        </div>
+      ),
+    };
+  };
+
   getMoveSegmentsHereMenuItem = (groupId: number): ItemType => {
     return this.props.selectedIds != null
       ? {
@@ -1378,6 +1430,7 @@ class SegmentsView extends React.Component<Props, State> {
         doSelectedSegmentsHaveAnyMeshes ? this.getReloadMenuItem(null) : null,
         doSelectedSegmentsHaveAnyMeshes ? this.getRemoveMeshesMenuItem(null) : null,
         doSelectedSegmentsHaveAnyMeshes ? this.getDownLoadMeshesMenuItem(null) : null,
+        this.getSkeletonizeSegmentsMenuItem(null),
         this.getSetGroupColorMenuItem(null),
         this.getResetGroupColorMenuItem(null),
         this.getRemoveFromSegmentListMenuItem(null),
@@ -1482,6 +1535,7 @@ class SegmentsView extends React.Component<Props, State> {
             this.getRemoveMeshesMenuItem(id),
             this.maybeGetShowOrHideMeshesMenuItems(id),
             this.getDownLoadMeshesMenuItem(id),
+            this.getSkeletonizeSegmentsMenuItem(id),
           ].flat(),
         });
 

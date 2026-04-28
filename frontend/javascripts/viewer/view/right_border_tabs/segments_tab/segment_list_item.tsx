@@ -8,7 +8,10 @@ import Icon, {
 } from "@ant-design/icons";
 import BrushIcon from "@images/icons/icon-brush.svg?react";
 import CrosshairsIcon from "@images/icons/icon-crosshairs.svg?react";
+import { startSkeletonizeSegmentationJob } from "admin/rest_api";
 import { App, Checkbox, List, type MenuProps, Space } from "antd";
+import { getMagInfoOfVisibleSegmentationLayer } from "viewer/model/accessors/dataset_accessor";
+import { getBaseSegmentationName } from "viewer/view/right_border_tabs/segments_tab/segments_view_helper";
 import type { MenuItemType } from "antd/es/menu/interface";
 import type { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
 import classnames from "classnames";
@@ -537,6 +540,47 @@ function _SegmentListItem({
             hideContextMenu();
           },
           label: "Remove Segment From List",
+        },
+        {
+          key: "skeletonizeSegment",
+          onClick: async () => {
+            hideContextMenu();
+            if (visibleSegmentationLayer == null) return;
+            const state = Store.getState();
+            const magInfo = getMagInfoOfVisibleSegmentationLayer(state);
+            if (magInfo == null) {
+              Toast.error("No mag info available for segmentation layer.");
+              return;
+            }
+            try {
+              const job = await startSkeletonizeSegmentationJob(
+                state.dataset.id,
+                getBaseSegmentationName(visibleSegmentationLayer),
+                magInfo.getFinestMag(),
+                [segment.id],
+              );
+              const downloadUrl = `/api/jobs/${job.id}/skeletonDownload`;
+              Toast.info(
+                <>
+                  Skeletonization started for segment {segment.id}.{" "}
+                  <a target="_blank" href="/jobs" rel="noopener noreferrer">
+                    View job progress
+                  </a>
+                  . When it finishes,{" "}
+                  <a target="_blank" href={downloadUrl} rel="noopener noreferrer">
+                    download the skeleton (.zip)
+                  </a>
+                  .
+                </>,
+                { sticky: true },
+              );
+            } catch (e) {
+              Toast.error(
+                `Could not start skeletonization: ${e instanceof Error ? e.message : String(e)}`,
+              );
+            }
+          },
+          label: "Skeletonize Segment",
         },
         {
           key: "deleteSegmentData",

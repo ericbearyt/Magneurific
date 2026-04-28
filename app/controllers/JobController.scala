@@ -191,6 +191,81 @@ class JobController @Inject()(jobDAO: JobDAO,
       } yield Ok(js)
     }
 
+  def runSkeletonizeSegmentationJob(datasetId: ObjectId,
+                                    layerName: String,
+                                    mag: String,
+                                    segmentIds: String,
+                                    boundingBox: Option[String]): Action[AnyContent] =
+    sil.SecuredAction.async { implicit request =>
+      for {
+        dataset <- datasetDAO.findOne(datasetId) ?~> Messages("dataset.notFound", datasetId) ~> NOT_FOUND
+        organization <- organizationDAO.findOne(dataset._organization)(GlobalAccessContext) ?~> Messages(
+          "organization.notFound",
+          dataset._organization)
+        _ <- Fox.fromBool(request.identity._organization == organization._id) ?~> "job.skeletonize.notAllowed.organization" ~> FORBIDDEN
+        _ <- datasetService.assertValidLayerNameLax(layerName)
+        _ <- Fox.fromBool(segmentIds.trim.nonEmpty) ?~> "job.skeletonize.segmentIdsRequired"
+        command = JobCommand.skeletonize_segmentation
+        commandArgs = Json.obj(
+          "organization_id" -> organization._id,
+          "dataset_name" -> dataset.name,
+          "dataset_id" -> dataset._id,
+          "dataset_directory_name" -> dataset.directoryName,
+          "layer_name" -> layerName,
+          "mag" -> mag,
+          "segment_ids" -> segmentIds,
+          "bounding_box" -> boundingBox
+        )
+        job <- jobService.submitJob(command, commandArgs, request.identity, dataset._dataStore) ?~> "job.couldNotRunSkeletonize"
+        js <- jobService.publicWrites(job)
+      } yield Ok(js)
+    }
+
+  def runIngestDatasetJob(datasetId: ObjectId, sourcePath: String): Action[AnyContent] =
+    sil.SecuredAction.async { implicit request =>
+      for {
+        dataset <- datasetDAO.findOne(datasetId) ?~> Messages("dataset.notFound", datasetId) ~> NOT_FOUND
+        organization <- organizationDAO.findOne(dataset._organization)(GlobalAccessContext) ?~> Messages(
+          "organization.notFound",
+          dataset._organization)
+        _ <- Fox.fromBool(request.identity._organization == organization._id) ?~> "job.ingestDataset.notAllowed.organization" ~> FORBIDDEN
+        _ <- Fox.fromBool(sourcePath.trim.nonEmpty) ?~> "job.ingestDataset.sourcePathRequired"
+        command = JobCommand.ingest_large_dataset
+        commandArgs = Json.obj(
+          "organization_id" -> organization._id,
+          "dataset_name" -> dataset.name,
+          "dataset_id" -> dataset._id,
+          "dataset_directory_name" -> dataset.directoryName,
+          "source_path" -> sourcePath
+        )
+        job <- jobService.submitJob(command, commandArgs, request.identity, dataset._dataStore) ?~> "job.couldNotRunIngestDataset"
+        js <- jobService.publicWrites(job)
+      } yield Ok(js)
+    }
+
+  def runBatchSkeletonizeJob(datasetId: ObjectId, layerName: String, mag: String): Action[AnyContent] =
+    sil.SecuredAction.async { implicit request =>
+      for {
+        dataset <- datasetDAO.findOne(datasetId) ?~> Messages("dataset.notFound", datasetId) ~> NOT_FOUND
+        organization <- organizationDAO.findOne(dataset._organization)(GlobalAccessContext) ?~> Messages(
+          "organization.notFound",
+          dataset._organization)
+        _ <- Fox.fromBool(request.identity._organization == organization._id) ?~> "job.batchSkeletonize.notAllowed.organization" ~> FORBIDDEN
+        _ <- datasetService.assertValidLayerNameLax(layerName)
+        command = JobCommand.batch_skeletonize
+        commandArgs = Json.obj(
+          "organization_id" -> organization._id,
+          "dataset_name" -> dataset.name,
+          "dataset_id" -> dataset._id,
+          "dataset_directory_name" -> dataset.directoryName,
+          "layer_name" -> layerName,
+          "mag" -> mag
+        )
+        job <- jobService.submitJob(command, commandArgs, request.identity, dataset._dataStore) ?~> "job.couldNotRunBatchSkeletonize"
+        js <- jobService.publicWrites(job)
+      } yield Ok(js)
+    }
+
   def runComputeSegmentIndexFileJob(datasetId: ObjectId, layerName: String): Action[AnyContent] =
     sil.SecuredAction.async { implicit request =>
       for {
@@ -468,6 +543,56 @@ class JobController @Inject()(jobDAO: JobDAO,
           wkSilhouetteEnvironment.combinedAuthenticatorService.findOrCreateToken(request.identity.loginInfo))
         uri = s"${dataStore.publicUrl}/data/exports/$jobId/download"
       } yield Redirect(uri, Map(("token", Seq(userAuthToken.id))))
+    }
+
+  // Streams a zip of the skeletonization output directory produced for this job.
+  // Files live at <repo>/skeletonization_output/<datasetDirName>/<layer>/<jobId>/
+  def downloadSkeletonization(jobId: ObjectId): Action[AnyContent] =
+    sil.SecuredAction.async { implicit request =>
+      import java.io.{ByteArrayOutputStream, FileInputStream}
+      import java.nio.file.{Files, Path, Paths}
+      import java.util.zip.{ZipEntry, ZipOutputStream}
+      import scala.util.Using
+      for {
+        job <- jobDAO.findOne(jobId) ?~> Messages("job.notFound") ~> NOT_FOUND
+        _ <- Fox.fromBool(job.command == JobCommand.skeletonize_segmentation) ?~> "job.wrongType"
+        layerName <- (job.args \ "layer_name").asOpt[String].toFox ?~> "job.missingLayerName"
+        datasetDirName <- (job.args \ "dataset_directory_name").asOpt[String].toFox ?~> "job.missingDirName"
+        organizationId <- (job.args \ "organization_id").asOpt[String].toFox ?~> "job.missingOrgId"
+        repoRoot = Paths.get(System.getProperty("user.dir"))
+        candidateDirs: List[Path] = List(
+          // Current layout (service versions after the output-path rewrite)
+          repoRoot.resolve("skeletonization_output").resolve(datasetDirName).resolve(layerName).resolve(jobId.id),
+          // Legacy layout (pre-rewrite service dumped into binaryData)
+          repoRoot
+            .resolve("binaryData")
+            .resolve(organizationId)
+            .resolve(datasetDirName)
+            .resolve("skeletons")
+            .resolve(layerName)
+        )
+        outputDir <- candidateDirs.find(Files.isDirectory(_)).toFox ?~>
+          s"Output not found. Tried: ${candidateDirs.mkString(", ")}" ~> NOT_FOUND
+        baos = new ByteArrayOutputStream()
+        _ = Using.resource(new ZipOutputStream(baos)) { zos =>
+          Files.walk(outputDir).forEach { p =>
+            if (Files.isRegularFile(p)) {
+              val rel = outputDir.relativize(p).toString
+              zos.putNextEntry(new ZipEntry(rel))
+              Using.resource(new FileInputStream(p.toFile)) { fis =>
+                val buf = new Array[Byte](8192)
+                Iterator.continually(fis.read(buf)).takeWhile(_ != -1).foreach(n => zos.write(buf, 0, n))
+              }
+              zos.closeEntry()
+            }
+          }
+        }
+      } yield
+        Ok(baos.toByteArray)
+          .as("application/zip")
+          .withHeaders(
+            "Content-Disposition" -> s"""attachment; filename="skeletonization_${jobId.id}.zip""""
+          )
     }
 
   def getJobCreditCost(command: String, boundingBoxInMag: String): Action[AnyContent] =
