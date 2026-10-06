@@ -24,6 +24,9 @@ import { PortalTarget } from "viewer/view/layouting/portal_utils";
 import NmlUploadZoneContainer from "viewer/view/nml_upload_zone_container";
 import { ActiveTabContext, RenderingTabContext } from "./dashboard_contexts";
 import { DatasetFolderView } from "./dataset_folder_view";
+import { Link } from "react-router-dom";
+import { PlusOutlined } from "@ant-design/icons";
+import { isUserAdminOrManager } from "libs/utils";
 
 type OwnProps = {
   userId: string | null | undefined;
@@ -162,7 +165,20 @@ class DashboardView extends PureComponent<PropsWithRouter, State> {
           : null,
         validTabKeys.datasets
           ? {
-              label: <span>Datasets</span>,
+              label: (
+                <span>
+                  Datasets
+                  {isUserAdminOrManager(this.props.activeUser) && (
+                    <Link
+                      to="/datasets/upload"
+                      style={{ marginLeft: 8 }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <PlusOutlined style={{ color: "var(--ant-color-primary)" }} />
+                    </Link>
+                  )}
+                </span>
+              ),
               key: "datasets",
               children: (
                 <RenderingTabContext.Provider value="datasets">

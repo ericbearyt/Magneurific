@@ -288,6 +288,34 @@ class JobController @Inject()(jobDAO: JobDAO,
       } yield Ok(js)
     }
 
+  def runBuildAgglomerateGraphJob(datasetId: ObjectId,
+                                  layerName: String,
+                                  mag: String,
+                                  agglomerateName: String): Action[AnyContent] =
+    sil.SecuredAction.async { implicit request =>
+      for {
+        dataset <- datasetDAO.findOne(datasetId) ?~> Messages("dataset.notFound", datasetId) ~> NOT_FOUND
+        organization <- organizationDAO.findOne(dataset._organization)(GlobalAccessContext) ?~> Messages(
+          "organization.notFound",
+          dataset._organization)
+        _ <- Fox.fromBool(request.identity._organization == organization._id) ?~> "job.buildAgglomerateGraph.notAllowed.organization" ~> FORBIDDEN
+        _ <- datasetService.assertValidLayerNameLax(layerName)
+        _ <- Fox.fromBool(agglomerateName.trim.nonEmpty) ?~> "job.buildAgglomerateGraph.nameRequired"
+        command = JobCommand.build_agglomerate_graph
+        commandArgs = Json.obj(
+          "organization_id" -> organization._id,
+          "dataset_name" -> dataset.name,
+          "dataset_id" -> dataset._id,
+          "dataset_directory_name" -> dataset.directoryName,
+          "layer_name" -> layerName,
+          "mag" -> mag,
+          "agglomerate_name" -> agglomerateName
+        )
+        job <- jobService.submitJob(command, commandArgs, request.identity, dataset._dataStore) ?~> "job.couldNotRunBuildAgglomerateGraph"
+        js <- jobService.publicWrites(job)
+      } yield Ok(js)
+    }
+
   def runInferMitochondriaJob(datasetId: ObjectId,
                               layerName: String,
                               bbox: String,

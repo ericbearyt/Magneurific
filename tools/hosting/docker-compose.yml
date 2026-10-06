@@ -139,3 +139,54 @@ services:
     depends_on:
       - webknossos
     restart: unless-stopped
+
+  # Mesh service — runs zmesh on segmentation layers for compute_mesh_file jobs.
+  mesh-service:
+    image: python:3.12-slim
+    volumes:
+      - ./binaryData:/webknossos/binaryData
+      - ../mesh-service:/app:ro
+    working_dir: /app
+    command: >
+      sh -c "pip install --no-cache-dir uv &&
+             uv run main.py --wk-uri http://webknossos:9000 --polling-interval-seconds 10"
+    environment:
+      - WORKER_KEY=${MESH_WORKER_KEY:-secretWorkerKey}
+      - BINARY_DATA_DIR=/webknossos/binaryData
+    depends_on:
+      - webknossos
+    restart: unless-stopped
+
+  # Segment index service — builds HDF5 segment-index files for compute_segment_index_file jobs.
+  segment-index-service:
+    image: python:3.12-slim
+    volumes:
+      - ./binaryData:/webknossos/binaryData
+      - ../segment-index-service:/app:ro
+    working_dir: /app
+    command: >
+      sh -c "pip install --no-cache-dir uv &&
+             uv run main.py --wk-uri http://webknossos:9000 --polling-interval-seconds 10"
+    environment:
+      - WORKER_KEY=${SEGMENT_INDEX_WORKER_KEY:-secretWorkerKey}
+      - BINARY_DATA_DIR=/webknossos/binaryData
+    depends_on:
+      - webknossos
+    restart: unless-stopped
+
+  # Agglomerate service — builds HDF5 agglomerate files for build_agglomerate_graph jobs.
+  agglomerate-service:
+    image: python:3.12-slim
+    volumes:
+      - ./binaryData:/webknossos/binaryData
+      - ../agglomerate-service:/app:ro
+    working_dir: /app
+    command: >
+      sh -c "pip install --no-cache-dir uv &&
+             uv run main.py --wk-uri http://webknossos:9000 --polling-interval-seconds 10"
+    environment:
+      - WORKER_KEY=${AGGLOMERATE_WORKER_KEY:-secretWorkerKey}
+      - BINARY_DATA_DIR=/webknossos/binaryData
+    depends_on:
+      - webknossos
+    restart: unless-stopped

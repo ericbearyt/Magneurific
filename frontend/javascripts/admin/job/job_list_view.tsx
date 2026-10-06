@@ -160,6 +160,7 @@ export function getJobTypeName(command: APIJobCommand): string {
     [APIJobCommand.DEPRECATED_INFER_WITH_MODEL]: "AI Inference (Legacy)",
     ingest_large_dataset: "Ingest Large Dataset",
     batch_skeletonize: "Batch Skeletonize",
+    build_agglomerate_graph: "Build Agglomerate Graph",
   };
   return jobTypeNames[command] || command;
 }

@@ -227,6 +227,22 @@ export function startComputeSegmentIndexFileJob(
   });
 }
 
+export function startBuildAgglomerateGraphJob(
+  datasetId: string,
+  layerName: string,
+  mag: Vector3,
+  agglomerateName: string,
+): Promise<APIJob> {
+  const params = new URLSearchParams();
+  params.append("layerName", layerName);
+  params.append("mag", mag.join("-"));
+  params.append("agglomerateName", agglomerateName);
+
+  return Request.receiveJSON(`/api/jobs/run/buildAgglomerateGraph/${datasetId}?${params}`, {
+    method: "POST",
+  });
+}
+
 export async function getAiModelVoxelSize(aiModelId: string): Promise<VoxelSize> {
   return Request.receiveJSON(`/api/aiModels/${aiModelId}/voxelSize`);
 }

@@ -349,6 +349,14 @@ job.couldNotRunInferMitochondria = Failed to start job to infer mitochondria.
 job.couldNotRunAlignSections = Failed to start job to align sections.
 job.couldNotRunSkeletonize = Failed to start skeletonization job.
 job.skeletonize.segmentIdsRequired = At least one segment ID is required to run skeletonization.
+job.couldNotRunIngestDataset = Failed to start ingest job.
+job.ingestDataset.notAllowed.organization = Ingesting datasets is only allowed for datasets of your own organization.
+job.ingestDataset.sourcePathRequired = A non-empty source path is required to run ingest.
+job.couldNotRunBatchSkeletonize = Failed to start batch skeletonization job.
+job.batchSkeletonize.notAllowed.organization = Batch skeletonization is only allowed for datasets of your own organization.
+job.couldNotRunBuildAgglomerateGraph = Failed to start agglomerate graph build job.
+job.buildAgglomerateGraph.notAllowed.organization = Building agglomerate files is only allowed for datasets of your own organization.
+job.buildAgglomerateGraph.nameRequired = A non-empty agglomerate name is required.
 job.disabled = Long-running jobs are not enabled for this WEBKNOSSOS instance.
 job.submission.failed = Failed to submit the job. Please contact us if this keeps re-occurring.
 job.worker.notFound = Could not find this worker in the database.
@@ -381,6 +389,12 @@ job.creditTransaction.failed = Failed to perform credit transaction
 job.creditTransaction.refund.failed = Failed to perform credit transaction refund
 job.creditTransaction.notPaidPlan = Only organizations with a paid plan are allowed to start this job.
 job.creditTransaction.noAiPlan = Only organizations with an AI plan are allowed to start this job.
+
+job.ingestDataset.notAllowed.organization = Ingesting large datasets is only allowed for datasets of your own organization.
+job.ingestDataset.sourcePathRequired = A source path is required to ingest a dataset.
+job.couldNotRunIngestDataset = Failed to start ingest dataset job.
+job.batchSkeletonize.notAllowed.organization = Batch skeletonizing is only allowed for datasets of your own organization.
+job.couldNotRunBatchSkeletonize = Failed to start batch skeletonize job.
 
 voxelytics.disabled = Voxelytics workflow reporting and logging are not enabled for this WEBKNOSSOS instance.
 voxelytics.runNotFound = Workflow runs not found

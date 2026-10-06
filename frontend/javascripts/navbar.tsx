@@ -2,6 +2,7 @@ import Icon, {
   BarChartOutlined,
   ExperimentOutlined,
   HomeOutlined,
+  PlusOutlined,
   QuestionCircleOutlined,
   SwapOutlined,
   TeamOutlined,
@@ -844,6 +845,21 @@ function Navbar({ isAuthenticated }: { isAuthenticated: boolean }) {
       }
     } else {
       menuItems.push(getTimeTrackingMenu(collapseAllNavItems));
+    }
+
+    if (isAdminOrManager) {
+      menuItems.push({
+        key: "/datasets/upload",
+        label: (
+          <Link to="/datasets/upload">
+            {getCollapsibleMenuTitle(
+              "Add Dataset",
+              <PlusOutlined className="icon-margin-right" />,
+              collapseAllNavItems,
+            )}
+          </Link>
+        ),
+      });
     }
 
     if (

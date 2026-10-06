@@ -145,15 +145,15 @@ def run_orchestrator(args: argparse.Namespace, job: BatchSkeletonizeJob) -> None
         # We read chunk by chunk to avoid OOM
         unique_ids = set()
         chunk_size = 512
-        for z in range(0, bbox.depth, chunk_size):
-            for y in range(0, bbox.height, chunk_size):
-                for x in range(0, bbox.width, chunk_size):
-                    w = min(chunk_size, bbox.width - x)
-                    h = min(chunk_size, bbox.height - y)
-                    d = min(chunk_size, bbox.depth - z)
+        for z in range(0, bbox.size.z, chunk_size):
+            for y in range(0, bbox.size.y, chunk_size):
+                for x in range(0, bbox.size.x, chunk_size):
+                    w = min(chunk_size, bbox.size.x - x)
+                    h = min(chunk_size, bbox.size.y - y)
+                    d = min(chunk_size, bbox.size.z - z)
                     
                     data = mag.read(
-                        absolute_offset=(bbox.top_left.x + x, bbox.top_left.y + y, bbox.top_left.z + z),
+                        absolute_offset=(bbox.topleft.x + x, bbox.topleft.y + y, bbox.topleft.z + z),
                         size=(w, h, d)
                     )
                     unique_ids.update(np.unique(data))
