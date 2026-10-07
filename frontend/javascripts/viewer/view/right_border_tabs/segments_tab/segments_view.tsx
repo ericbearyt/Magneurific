@@ -21,6 +21,7 @@ import Icon, {
 } from "@ant-design/icons";
 import LoadMeshesIcon from "@images/icons/icon-load-meshes.svg?react";
 import PipetteIcon from "@images/icons/icon-pipette.svg?react";
+import { startSkeletonizeSegmentationJob } from "admin/rest_api";
 import {
   ConfigProvider,
   Divider,
@@ -38,7 +39,6 @@ import {
 import type { ItemType } from "antd/lib/menu/interface";
 import type { DataNode } from "antd/lib/tree";
 import app from "app";
-import { startSkeletonizeSegmentationJob } from "admin/rest_api";
 import { ChangeColorMenuItemContent } from "components/color_picker";
 import FastTooltip from "components/fast_tooltip";
 import Toast from "libs/toast";

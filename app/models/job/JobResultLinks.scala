@@ -25,9 +25,8 @@ trait JobResultLinks {
     if (effectiveState != JobState.SUCCESS) None
     else {
       command match {
-        case JobCommand.convert_to_wkw | JobCommand.compute_mesh_file |
-            JobCommand.compute_segment_index_file | JobCommand.build_agglomerate_graph |
-            JobCommand.ingest_large_dataset =>
+        case JobCommand.convert_to_wkw | JobCommand.compute_mesh_file | JobCommand.compute_segment_index_file |
+            JobCommand.build_agglomerate_graph | JobCommand.ingest_large_dataset =>
           datasetId.map { datasetId =>
             val datasetNameMaybe = datasetName.map(name => s"$name-").getOrElse("")
             Some(s"/datasets/$datasetNameMaybe$datasetId/view")

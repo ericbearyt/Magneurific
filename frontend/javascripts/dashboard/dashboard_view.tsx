@@ -1,3 +1,4 @@
+import { PlusOutlined } from "@ant-design/icons";
 import { cachedGetPricingPlanStatus } from "admin/api/organization";
 import { PlanAboutToExceedAlert, PlanExceededAlert } from "admin/organization/organization_cards";
 import { getUser, updateNovelUserExperienceInfos } from "admin/rest_api";
@@ -9,11 +10,13 @@ import { PublicationViewWithHeader } from "dashboard/publication_view";
 import features from "features";
 import Request from "libs/request";
 import UserLocalStorage from "libs/user_local_storage";
+import { isUserAdminOrManager } from "libs/utils";
 import { type RouteComponentProps, withRouter } from "libs/with_router_hoc";
 import invert from "lodash-es/invert";
 import type React from "react";
 import { PureComponent } from "react";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 import type { Dispatch } from "redux";
 import type { APIOrganization, APIPricingPlanStatus, APIUser } from "types/api_types";
 import { enforceActiveOrganization } from "viewer/model/accessors/organization_accessors";
@@ -24,9 +27,6 @@ import { PortalTarget } from "viewer/view/layouting/portal_utils";
 import NmlUploadZoneContainer from "viewer/view/nml_upload_zone_container";
 import { ActiveTabContext, RenderingTabContext } from "./dashboard_contexts";
 import { DatasetFolderView } from "./dataset_folder_view";
-import { Link } from "react-router-dom";
-import { PlusOutlined } from "@ant-design/icons";
-import { isUserAdminOrManager } from "libs/utils";
 
 type OwnProps = {
   userId: string | null | undefined;

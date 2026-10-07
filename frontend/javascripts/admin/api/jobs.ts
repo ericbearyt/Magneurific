@@ -189,10 +189,7 @@ export function startSkeletonizeSegmentationJob(
   });
 }
 
-export function startIngestDatasetJob(
-  datasetId: string,
-  sourcePath: string,
-): Promise<APIJob> {
+export function startIngestDatasetJob(datasetId: string, sourcePath: string): Promise<APIJob> {
   const params = new URLSearchParams();
   params.append("sourcePath", sourcePath);
 
