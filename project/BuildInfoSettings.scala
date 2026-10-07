@@ -23,7 +23,7 @@ object BuildInfoSettings {
 
   def webknossosVersion: String = if (ciTag != "") ciTag else (if (ciBuild != "") ciBuild else "dev")
 
-  val certificatePublicKey: Option[String] = Properties.envOrNone("CERTIFICATE_PUBLIC_KEY")
+  val certificatePublicKey: Option[String] = Properties.envOrNone("CERTIFICATE_PUBLIC_KEY").filter(_.nonEmpty)
 
   lazy val webknossosBuildInfoSettings = Seq(
     buildInfoKeys := Seq[BuildInfoKey](
