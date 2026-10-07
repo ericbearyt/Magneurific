@@ -158,9 +158,9 @@ export function getJobTypeName(command: APIJobCommand): string {
     [APIJobCommand.TRAIN_INSTANCE_MODEL]: "Train Instance Model",
     [APIJobCommand.DEPRECATED_TRAIN_MODEL]: "Train Model (Legacy)",
     [APIJobCommand.DEPRECATED_INFER_WITH_MODEL]: "AI Inference (Legacy)",
-    ingest_large_dataset: "Ingest Large Dataset",
-    batch_skeletonize: "Batch Skeletonize",
-    build_agglomerate_graph: "Build Agglomerate Graph",
+    [APIJobCommand.INGEST_LARGE_DATASET]: "Ingest Large Dataset",
+    [APIJobCommand.BATCH_SKELETONIZE]: "Batch Skeletonize",
+    [APIJobCommand.BUILD_AGGLOMERATE_GRAPH]: "Build Agglomerate Graph",
   };
   return jobTypeNames[command] || command;
 }
@@ -349,14 +349,13 @@ function JobListView() {
           {getShowTrainingDataLink(modal, job.args.trainingAnnotations)}
         </span>
       );
-    } else if (job.command === "ingest_large_dataset") {
+    } else if (job.command === APIJobCommand.INGEST_LARGE_DATASET) {
       return (
         <span>
-          Ingest large dataset from <i>{job.args.sourcePath}</i> into{" "}
-          <b>{job.args.datasetName}</b>
+          Ingest large dataset from <i>{job.args.sourcePath}</i> into <b>{job.args.datasetName}</b>
         </span>
       );
-    } else if (job.command === "batch_skeletonize") {
+    } else if (job.command === APIJobCommand.BATCH_SKELETONIZE && linkToDataset != null) {
       return (
         <span>
           Batch skeletonize layer <i>{layerName}</i> for dataset{" "}

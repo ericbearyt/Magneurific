@@ -823,6 +823,13 @@ export enum APIJobCommand {
   MATERIALIZE_VOLUME_ANNOTATION = "materialize_volume_annotation",
   TRAIN_NEURON_MODEL = "train_neuron_model",
   TRAIN_INSTANCE_MODEL = "train_instance_model",
+  SKELETONIZE_SEGMENTATION = "skeletonize_segmentation",
+  INGEST_LARGE_DATASET = "ingest_large_dataset",
+  BATCH_SKELETONIZE = "batch_skeletonize",
+  TRAIN_GLIA_MODEL = "train_glia_model",
+  INFER_GLIA = "infer_glia",
+  PUSH_GLIA_SEGMENTATION = "push_glia_segmentation",
+  BUILD_AGGLOMERATE_GRAPH = "build_agglomerate_graph",
   // Only used for backwards compatibility, e.g. to display results.
   DEPRECATED_INFER_WITH_MODEL = "infer_with_model",
   DEPRECATED_TRAIN_MODEL = "train_model",
@@ -848,6 +855,7 @@ export type ApiJobArgs = {
   readonly modelId: string | null | undefined;
   readonly boundingBox: string | null | undefined;
   readonly ndBoundingBox: WkLibsNdBoundingBox | null | undefined;
+  readonly sourcePath: string | null | undefined;
 };
 
 export type APIJob = {

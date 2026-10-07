@@ -71,7 +71,7 @@ exports[`Misc APIs (E2E)  > getFeatureToggles() 1`] = `
   "hideNavbarLogin": false,
   "instancesInferralCostInMilliCreditsPerGVx": 1000,
   "isWkorgInstance": false,
-  "jobsEnabled": false,
+  "jobsEnabled": true,
   "mitochondriaInferralCostInMilliCreditsPerGVx": 1000,
   "neuronInferralCostInMilliCreditsPerGVx": 1000,
   "nucleiInferralCostInMilliCreditsPerGVx": 1000,

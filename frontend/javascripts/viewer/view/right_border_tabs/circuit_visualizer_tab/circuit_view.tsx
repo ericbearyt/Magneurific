@@ -1,7 +1,8 @@
 import { ApartmentOutlined, ExpandOutlined, NodeIndexOutlined } from "@ant-design/icons";
 import { Button, Empty, Radio, Slider, Space, Tooltip, Typography } from "antd";
-import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useWkSelector } from "libs/react_hooks";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { EmptyObject } from "types/type_utils";
 import CircuitRenderer, { type LayoutMode } from "./circuit_renderer";
 
@@ -86,7 +87,10 @@ const CircuitVisualizerView: React.FC<EmptyObject> = () => {
   }
 
   return (
-    <div id="circuit-visualizer-container" style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+    <div
+      id="circuit-visualizer-container"
+      style={{ height: "100%", display: "flex", flexDirection: "column" }}
+    >
       {/* Controls Bar */}
       <div style={{ padding: "8px 12px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
         <Space direction="vertical" size="small" style={{ width: "100%" }}>
@@ -143,16 +147,17 @@ const CircuitVisualizerView: React.FC<EmptyObject> = () => {
       </div>
 
       {/* 3D Viewport */}
-      <div
-        style={{ flex: 1, position: "relative", minHeight: 300, background: "#0a0a0f" }}
-      >
+      <div style={{ flex: 1, position: "relative", minHeight: 300, background: "#0a0a0f" }}>
         {!isInitialized ? (
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
-            <Button
-              type="primary"
-              onClick={initRenderer}
-              icon={<ApartmentOutlined />}
-            >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <Button type="primary" onClick={initRenderer} icon={<ApartmentOutlined />}>
               Initialize Circuit Visualizer
             </Button>
           </div>

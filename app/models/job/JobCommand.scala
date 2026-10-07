@@ -13,9 +13,8 @@ object JobCommand extends ExtendedEnumeration {
 
   val compute_mesh_file, compute_segment_index_file, convert_to_wkw, export_tiff, find_largest_segment_id,
   materialize_volume_annotation, render_animation, align_sections, infer_nuclei, infer_neurons, infer_instances,
-  infer_mitochondria, skeletonize_segmentation, train_neuron_model, train_instance_model,
-  ingest_large_dataset, batch_skeletonize, train_glia_model, infer_glia, push_glia_segmentation,
-  build_agglomerate_graph,
+  infer_mitochondria, skeletonize_segmentation, train_neuron_model, train_instance_model, ingest_large_dataset,
+  batch_skeletonize, train_glia_model, infer_glia, push_glia_segmentation, build_agglomerate_graph,
   // No-longer supported jobs, kept here to be able to display old existing jobs:
   globalize_floodfills, train_model, infer_with_model = Value
 

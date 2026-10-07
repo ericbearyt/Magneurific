@@ -10,8 +10,6 @@ import BrushIcon from "@images/icons/icon-brush.svg?react";
 import CrosshairsIcon from "@images/icons/icon-crosshairs.svg?react";
 import { startSkeletonizeSegmentationJob } from "admin/rest_api";
 import { App, Checkbox, List, type MenuProps, Space } from "antd";
-import { getMagInfoOfVisibleSegmentationLayer } from "viewer/model/accessors/dataset_accessor";
-import { getBaseSegmentationName } from "viewer/view/right_border_tabs/segments_tab/segments_view_helper";
 import type { MenuItemType } from "antd/es/menu/interface";
 import type { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
 import classnames from "classnames";
@@ -30,6 +28,7 @@ import type { AdditionalCoordinate, APIMeshFileInfo, APISegmentationLayer } from
 import type { Vector3, Vector4 } from "viewer/constants";
 import Constants from "viewer/constants";
 import { getSegmentIdForPosition } from "viewer/controller/combinations/volume_handlers";
+import { getMagInfoOfVisibleSegmentationLayer } from "viewer/model/accessors/dataset_accessor";
 import {
   getAdditionalCoordinatesAsString,
   getPosition,
@@ -50,6 +49,7 @@ import Store from "viewer/store";
 import ButtonComponent from "viewer/view/components/button_component";
 import EditableTextLabel from "viewer/view/components/editable_text_label";
 import { getContextMenuPositionFromEvent } from "viewer/view/context_menu/helpers";
+import { getBaseSegmentationName } from "viewer/view/right_border_tabs/segments_tab/segments_view_helper";
 import { LoadMeshMenuItemLabel } from "./load_mesh_menu_item_label";
 import { withMappingActivationConfirmation } from "./segments_view_helper";
 
